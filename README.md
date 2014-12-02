@@ -15,8 +15,8 @@ Configuration:
 
 Must be provided:
 ```
-    --kafka address:port,address2:port2
-    --zk    address:port,address2:port2
+    --kafka         address:port,address2:port2
+    --zk            address:port,address2:port2
 ```
 
 Optional configuration
@@ -32,7 +32,7 @@ Optional configuration
 Current status:
 ---------------
 
-Aim of the project was to *not* use Zookeeper at all. Also, the plan was not to hold a Kafka configuration in memory but rather get it passed in on each request to the server.
+Aim of the project was to **not** use Zookeeper at all. Also, the plan was not to hold a Kafka configuration in memory but rather get it passed in on each request to the server.
 
 However, due to the fact that certain Metadata API calls do not work in Kafka 0.8.2 or earlier, Zookeeper had to be used.
 
@@ -44,9 +44,9 @@ Build:
 ------
 `make build`
 
-For ease of development, there is a `make dev` which runs `go run` with compiles and runs the codebase. You'll need to provide your Kafka Address and ZK Address through environment variables named `KUMIS_KAFKA` and `KUMIS_ZK`
+For ease of development, there is a `make dev` which in turn runs `go run` which compiles and runs the executable. You'll need to provide your Kafka Address and ZK Address through environment variables named `KUMIS_KAFKA` and `KUMIS_ZK`
 
-To package for release, simply run `make release`. You'll find a zip file in the `out` folder.
+To package for release, simply run `make package`. You'll find a zip file in the `out` folder.
 
 Dependencies:
 -------------

@@ -1,4 +1,4 @@
-KUMIS_VERSION="0.1.0"
+KUMIS_VERSION="0.1.1"
 KUMIS_KAFKA := $(shell echo $(KUMIS_KAFKA))
 KUMIS_ZK := $(shell echo $(KUMIS_ZK))
 
@@ -33,6 +33,7 @@ package: build
 	mv out/kumis out/package/kumis
 	cp -r static out/package/static
 	make version
+	cd out/package; zip -v -r ../kumis-$(KUMIS_VERSION).zip *
 
 version:
 	git log -n 1 --decorate --pretty=oneline > out/package/version.txt
@@ -40,16 +41,9 @@ version:
 
 release: package
 	echo "About to release Kumis v" + $(KUMIS_VERSION)
-
-	# change version number here for git tagging
 	git tag $(KUMIS_VERSION)
-
-	#redo version file
-	make version
-
-	cd out/package; zip -v -r ../kumis-$(KUMIS_VERSION).zip *
-	
-	# push to git first
 	git push origin $(KUMIS_VERSION)
-	# change version number here for posting the package to Nexus
-	#mvn deploy:deploy-file -DgroupId=com.mofirouz -DartifactId=kumis -Dversion=$(KUMIS_VERSION) -Dfile=kumis.zip -DrepositoryId= -Durl=
+
+	make version
+	rm out/kumis-$(KUMIS_VERSION).zip
+	cd out/package; zip -v -r ../kumis-$(KUMIS_VERSION).zip *
