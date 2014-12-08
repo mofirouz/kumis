@@ -1,16 +1,45 @@
 package main
 
 import "github.com/Shopify/sarama"
+import "github.com/samuel/go-zookeeper/zk"
+
 import (
 	"strconv"
+	"time"
 )
 
-func getAllTopics() []string {
+func connectToZookeeper(zkAdd []string) (zookeeper *zk.Conn, err error) {
+	duration, _ := time.ParseDuration(strconv.Itoa(config.zkTimeout) + "ms")
+	zookeeper, _, err = zk.Connect(zkAdd, duration)
+
+	return
+}
+
+func getKafkaBrokers() (kafkaBrokers []string) {
+
+	return
+}
+
+func connectToKafka(kafkaAdd []string) (client *sarama.Client, err error) {
+	clientConfig := sarama.NewClientConfig()
+	clientConfig.MetadataRetries = 3
+
+	duration, _ := time.ParseDuration("3s")
+	clientConfig.WaitForElection = duration
+
+	duration, _ = time.ParseDuration("10s")
+	clientConfig.BackgroundRefreshFrequency = duration
+
+	client, err = sarama.NewClient(config.clientId, kafkaAdd, clientConfig)
+	return
+}
+
+func getAllTopics(client *sarama.Client) []string {
 	topics, _ := client.Topics()
 	return topics
 }
 
-func getAllConsumers() (liveConsumers []string, deadConsumers []string) {
+func getAllConsumers(zookeeper *zk.Conn, client *sarama.Client) (liveConsumers []string, deadConsumers []string) {
 	consumerNames, _, _ := zookeeper.Children(CONSUMERS)
 
 	for _, consumerId := range consumerNames {
@@ -25,15 +54,15 @@ func getAllConsumers() (liveConsumers []string, deadConsumers []string) {
 	return
 }
 
-func getBrokerData() (brokerData BrokerData, err error) {
-	brokerData.Topics = getAllTopics()
-	alive, dead := getAllConsumers()
+func getBrokerData(zookeeper *zk.Conn, client *sarama.Client) (brokerData BrokerData, err error) {
+	brokerData.Topics = getAllTopics(client)
+	alive, dead := getAllConsumers(zookeeper, client)
 	brokerData.LiveConsumers = alive
 	brokerData.DeadConsumers = dead
 	return
 }
 
-func getTopicData(topicName string) (topicData []*sarama.TopicMetadata, err error) {
+func getTopicData(client *sarama.Client, topicName string) (topicData []*sarama.TopicMetadata, err error) {
 	request := sarama.MetadataRequest{Topics: []string{topicName}}
 
 	partitions, _ := client.Partitions(topicName)
@@ -50,7 +79,7 @@ func getTopicData(topicName string) (topicData []*sarama.TopicMetadata, err erro
 
 // cannot use the new OffsetManagement API in Kafka 0.8.1.1
 // it's not supported yet - so let's get it from ZooKeeper
-func getConsumerData(consumerId string) (consumerData ConsumerData, err error) {
+func getConsumerData(zookeeper *zk.Conn, client *sarama.Client, consumerId string) (consumerData ConsumerData, err error) {
 	consumerData.ConsumerId = consumerId
 	consumerData.Live = false
 	consumerIdConnections, _, _ := zookeeper.Children(CONSUMERS + "/" + consumerId + IDS)

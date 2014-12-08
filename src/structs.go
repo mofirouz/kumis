@@ -1,8 +1,5 @@
 package main
 
-import "github.com/Shopify/sarama"
-import "github.com/samuel/go-zookeeper/zk"
-
 const (
 	CONSUMERS = "/consumers"
 	OFFSETS   = "/offsets"
@@ -12,17 +9,10 @@ const (
 var config struct {
 	assets    string
 	clientId  string
-	kafka     string
-	zk        string
 	zkTimeout int
 	port      int
 	webPort   int
 }
-
-var (
-	client    *sarama.Client
-	zookeeper *zk.Conn
-)
 
 // *currently unused*
 // used to parse the data coming back
