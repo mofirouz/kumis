@@ -1,9 +1,7 @@
 KUMIS_VERSION="0.1.1"
-KUMIS_KAFKA := $(shell echo $(KUMIS_KAFKA))
-KUMIS_ZK := $(shell echo $(KUMIS_ZK))
 
 dev: 
-	go run src/*.go --kafka $(KUMIS_KAFKA) --zk $(KUMIS_ZK)
+	go run src/*.go
 
 all: build package
 

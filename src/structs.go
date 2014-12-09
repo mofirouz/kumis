@@ -1,9 +1,10 @@
 package main
 
 const (
-	CONSUMERS = "/consumers"
-	OFFSETS   = "/offsets"
-	IDS       = "/ids"
+	BROKER_IDS = "/brokers/ids"
+	CONSUMERS  = "/consumers"
+	OFFSETS    = "/offsets"
+	IDS        = "/ids"
 )
 
 var config struct {

@@ -1,10 +1,13 @@
 package main
 
 import "github.com/go-martini/martini"
+import "github.com/Shopify/sarama"
+import "github.com/samuel/go-zookeeper/zk"
 
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -26,6 +29,10 @@ func main() {
 func startServer() {
 	m := martini.Classic()
 
+	m.Get("/", func() string {
+		return "ok"
+	})
+
 	m.Get("/ping", func() string {
 		return "ok"
 	})
@@ -39,27 +46,49 @@ func startServer() {
 		return string(versionData[:])
 	})
 
-	m.Get("/", func(res http.ResponseWriter, params martini.Params) []byte {
+	m.Get("/favicon.ico", func(res http.ResponseWriter, params martini.Params) []byte {
 		return nil
-		// return getJson(getKafkaBrokers())
 	})
 
 	m.Get("/:zk", func(res http.ResponseWriter, params martini.Params) []byte {
-		return getData(params["zk"], getKafkaBrokers)
+		zookeeper, client, err := connect(params["zk"])
+
+		if err != nil {
+			return getJson(err)
+		}
+
+		return getJson(getBrokerData(zookeeper, client))
 	})
 
 	m.Get("/:zk/t", func(res http.ResponseWriter, params martini.Params) []byte {
-		return getJson(getAllTopics())
+		_, client, err := connect(params["zk"])
+
+		if err != nil {
+			return getJson(err)
+		}
+
+		return getJson(getAllTopics(client))
 	})
 
 	m.Get("/:zk/t/:topic", func(res http.ResponseWriter, params martini.Params) []byte {
-		return getJson(getTopicData(params["topic"]))
+		_, client, err := connect(params["zk"])
+
+		if err != nil {
+			return getJson(err)
+		}
+
+		return getJson(getTopicData(client, params["topic"]))
 	})
 
 	m.Get("/:zk/c", func(res http.ResponseWriter, params martini.Params) []byte {
+		zookeeper, client, err := connect(params["zk"])
 
-		alive, dead := getAllConsumers()
+		if err != nil {
+			return getJson(err)
+		}
 
+		alive, dead := getAllConsumers(zookeeper, client)
+		consumers := make(map[string][]string)
 		consumers["LiveConsumers"] = alive
 		consumers["DeadConsumers"] = dead
 
@@ -67,25 +96,33 @@ func startServer() {
 	})
 
 	m.Get("/:zk/c/:consumerId", func(res http.ResponseWriter, params martini.Params) []byte {
-		return getJson(getConsumerData(params["consumerId"]))
+		zookeeper, client, err := connect(params["zk"])
+
+		if err != nil {
+			return getJson(err)
+		}
+
+		return getJson(getConsumerData(zookeeper, client, params["consumerId"]))
 	})
 
 	m.RunOnAddr("0.0.0.0:" + strconv.Itoa(config.port))
 }
 
-func getData(zkAddress string) (zookeeper *zk.Conn, client *sarama.Client, err error) {
-	zk, err = connectToZookeeper(zkAddress)
+func connect(zkAddress string) (zookeeper *zk.Conn, client *sarama.Client, err error) {
+	addresses := []string{zkAddress}
+
+	zookeeper, err = connectToZookeeper(addresses)
 	if err != nil {
-		return err
+		return
 	}
 
-	client, err = connectToKafka(getKafkaBrokers(zk)[0])
+	client, err = connectToKafka(getKafkaBrokers(zookeeper))
 	if err != nil {
-		return err
+		fmt.Println(err.Error())
+		return
 	}
 
 	err = nil
-
 	return
 }
 

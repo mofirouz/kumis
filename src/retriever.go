@@ -4,6 +4,7 @@ import "github.com/Shopify/sarama"
 import "github.com/samuel/go-zookeeper/zk"
 
 import (
+	"encoding/json"
 	"strconv"
 	"time"
 )
@@ -15,7 +16,16 @@ func connectToZookeeper(zkAdd []string) (zookeeper *zk.Conn, err error) {
 	return
 }
 
-func getKafkaBrokers() (kafkaBrokers []string) {
+func getKafkaBrokers(zookeeper *zk.Conn) (kafkaBrokers []string) {
+	brokerIds, _, _ := zookeeper.Children(BROKER_IDS)
+
+	for _, id := range brokerIds {
+		b, _, _ := zookeeper.Get(BROKER_IDS + "/" + id)
+		brokerData := new(ZKBrokerData)
+		json.Unmarshal(b, brokerData)
+
+		kafkaBrokers = append(kafkaBrokers, brokerData.Host+":"+strconv.Itoa(brokerData.Port))
+	}
 
 	return
 }
