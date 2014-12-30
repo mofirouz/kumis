@@ -1,0 +1,32 @@
+{
+  "name": "kumis",
+  "description": "Kumis : Kafka 0.8 Monitoring Tool",
+  "version": "0.1.0-dev",
+  "homepage": "https://github.com/mofirouz/kumis/",
+  "main": [
+    "index.html"
+  ],
+  "keywords": [
+    "kafka",
+    "kumis",
+    "polymer",
+    "web-components"
+  ],
+  "authors": [
+    "Mo Firouz <mofirouz@mofirouz.com>"
+  ],
+  "license": "Apache 2",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "webcomponentsjs": "~0.5.2",
+    "core-ajax": "polymer/core-ajax#~0.5.2",
+    "polymer": "~0.5.2",
+    "time-elements": "~0.4.0"
+  }
+}

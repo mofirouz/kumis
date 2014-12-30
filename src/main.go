@@ -1,6 +1,7 @@
 package main
 
 import "github.com/go-martini/martini"
+import "github.com/martini-contrib/cors"
 import "github.com/Shopify/sarama"
 import "github.com/samuel/go-zookeeper/zk"
 
@@ -28,6 +29,13 @@ func main() {
 
 func startServer() {
 	m := martini.Classic()
+	m.Use(cors.Allow(&cors.Options{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "OPTION"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
+		AllowCredentials: true,
+	}))
 
 	m.Get("/", func() string {
 		return "ok"

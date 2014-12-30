@@ -1,0 +1,34 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
+
+<!--
+An element to fetch topic data from Kumis.
+##### Example
+    <kumis-topics zk="$ZK_CLUSTER"></kumis-topics>
+@element kumis-topics
+@blurb An element to fetch topic data from Kumis.
+@status alpha
+@url https://github.com/mofirouz/kumis/
+-->
+
+<script src="kumis-topics.js"></script>
+<polymer-element name="kumis-topics" constructor="KumisTopics">
+  <template>
+    <core-ajax
+        auto
+        method="GET"
+        url="{{zk}}/t"
+        contentType="application/json"
+        handleAs="json"
+        response="{{response}}"></core-ajax>
+
+    <section>
+      <template repeat="{{response}}">
+        <article>
+          <p>{{}}</p>
+        </article>
+      </template>
+    </section>
+  </template>
+</polymer-element>
+

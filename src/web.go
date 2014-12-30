@@ -1,24 +1,15 @@
 package main
 
-import "github.com/go-martini/martini"
-
 import (
-	"io/ioutil"
 	"log"
+	"net/http"
 	"strconv"
 )
 
 func startWebServer() {
-	m := martini.Classic()
+	fs := http.FileServer(http.Dir(config.assets))
+	http.Handle("/", fs)
 
-	m.Get("/", func() string {
-		html, err := ioutil.ReadFile(config.assets + "/index.html")
-		if err != nil {
-			log.Fatal("Cannot load HTML file at " + config.assets + "/index.html")
-		}
-
-		return string(html)
-	})
-
-	m.RunOnAddr("0.0.0.0:" + strconv.Itoa(config.webPort))
+	log.Println("listening on 0.0.0.0:" + strconv.Itoa(config.webPort))
+	http.ListenAndServe("0.0.0.0:"+strconv.Itoa(config.webPort), nil)
 }
