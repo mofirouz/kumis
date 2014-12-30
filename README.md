@@ -28,7 +28,7 @@ Current status:
 
 The RESTful service is pretty much done. It's not very error-prune so it might break, but hopefully it will only break for that web gorouting and shouldn't crash the application.
 
-The SPA HTML side is not at all done. The plan is to use EmberJS along with some form of UI (such as SemanticUI or MaterialUI) to give it a better, more polished user experience. This is not done, and at this point you'll only get a blank page. 
+The SPA HTML side is not at all done. The plan is to use Polymer along with MaterialUI to give it a better, more polished user experience. This is not done, and at this point you'll only get a blank page. 
 
 Build:
 ------
@@ -44,6 +44,7 @@ Dependencies:
 - golang 1.3.3
 - https://github.com/Shopify/sarama
 - https://github.com/go-martini/martini
+- https://github.com/martini-contrib/cors
 - https://github.com/samuel/go-zookeeper/zk
 
 Contributions:
