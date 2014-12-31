@@ -9,11 +9,16 @@ import (
 	"time"
 )
 
-func connectToZookeeper(zkAdd []string) (zookeeper *zk.Conn, err error) {
+func connectToZookeeper(zkAdd []string) (zookeeper *zk.Conn) {
 	duration, _ := time.ParseDuration(strconv.Itoa(config.zkTimeout) + "ms")
-	zookeeper, _, err = zk.Connect(zkAdd, duration)
+	zookeeper, ch, err := zk.Connect(zkAdd, duration)
 
-	return
+	e := <-ch
+	if e.State.String() == "StateConnecting" || err != nil {
+		return nil
+	}
+
+	return zookeeper
 }
 
 func getKafkaBrokers(zookeeper *zk.Conn) (kafkaBrokers []string) {

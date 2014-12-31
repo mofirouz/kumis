@@ -7,6 +7,7 @@ import "github.com/samuel/go-zookeeper/zk"
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -17,7 +18,7 @@ import (
 func main() {
 	flag.StringVar(&config.assets, "static", "static", "Static Assets")
 	flag.StringVar(&config.clientId, "clientid", "kumis", "Kafka Client ID")
-	flag.IntVar(&config.zkTimeout, "zkTimeout", 10000, "Zookeeper Timeout in ms")
+	flag.IntVar(&config.zkTimeout, "zkTimeout", 1000, "Zookeeper Timeout in ms")
 	flag.IntVar(&config.port, "port", 7777, "Port number to run the Kumis server on")
 	flag.IntVar(&config.webPort, "webPort", 8080, "Port number to run the Kumis Web server on")
 
@@ -65,25 +66,34 @@ func startServer() {
 			return getJson(err)
 		}
 
+		defer zookeeper.Close()
+		defer client.Close()
+
 		return getJson(getBrokerData(zookeeper, client))
 	})
 
 	m.Get("/:zk/t", func(res http.ResponseWriter, params martini.Params) []byte {
-		_, client, err := connect(params["zk"])
+		zookeeper, client, err := connect(params["zk"])
 
 		if err != nil {
 			return getJson(err)
 		}
+
+		defer zookeeper.Close()
+		defer client.Close()
 
 		return getJson(getAllTopics(client))
 	})
 
 	m.Get("/:zk/t/:topic", func(res http.ResponseWriter, params martini.Params) []byte {
-		_, client, err := connect(params["zk"])
+		zookeeper, client, err := connect(params["zk"])
 
 		if err != nil {
 			return getJson(err)
 		}
+
+		defer zookeeper.Close()
+		defer client.Close()
 
 		return getJson(getTopicData(client, params["topic"]))
 	})
@@ -94,6 +104,9 @@ func startServer() {
 		if err != nil {
 			return getJson(err)
 		}
+
+		defer zookeeper.Close()
+		defer client.Close()
 
 		alive, dead := getAllConsumers(zookeeper, client)
 		consumers := make(map[string][]string)
@@ -110,6 +123,9 @@ func startServer() {
 			return getJson(err)
 		}
 
+		defer zookeeper.Close()
+		defer client.Close()
+
 		return getJson(getConsumerData(zookeeper, client, params["consumerId"]))
 	})
 
@@ -119,10 +135,13 @@ func startServer() {
 func connect(zkAddress string) (zookeeper *zk.Conn, client *sarama.Client, err error) {
 	addresses := []string{zkAddress}
 
-	zookeeper, err = connectToZookeeper(addresses)
-	if err != nil {
+	zookeeper = connectToZookeeper(addresses)
+	if zookeeper == nil {
+		err = errors.New("Couldn't connect to zookeeper")
 		return
 	}
+
+	fmt.Println("zk connected...kafka..")
 
 	client, err = connectToKafka(getKafkaBrokers(zookeeper))
 	if err != nil {
