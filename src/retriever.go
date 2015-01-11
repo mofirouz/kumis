@@ -1,7 +1,7 @@
 package main
 
 import "github.com/Shopify/sarama"
-import "github.com/samuel/go-zookeeper/zk"
+import "github.com/mofirouz/go-zookeeper/zk"
 
 import (
 	"encoding/json"
@@ -11,12 +11,7 @@ import (
 
 func connectToZookeeper(zkAdd []string) (zookeeper *zk.Conn) {
 	duration, _ := time.ParseDuration(strconv.Itoa(config.zkTimeout) + "ms")
-	zookeeper, ch, err := zk.Connect(zkAdd, duration)
-
-	e := <-ch
-	if e.State.String() == "StateConnecting" || err != nil {
-		return nil
-	}
+	zookeeper, _, _ = zk.ConnectWithRetryAttempt(zkAdd, duration, 1)
 
 	return zookeeper
 }

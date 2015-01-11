@@ -3,7 +3,7 @@ package main
 import "github.com/go-martini/martini"
 import "github.com/martini-contrib/cors"
 import "github.com/Shopify/sarama"
-import "github.com/samuel/go-zookeeper/zk"
+import "github.com/mofirouz/go-zookeeper/zk"
 
 import (
 	"encoding/json"
@@ -76,6 +76,7 @@ func startServer() {
 		zookeeper, client, err := connect(params["zk"])
 
 		if err != nil {
+			fmt.Println("error " + err.Error())
 			return getJson(err)
 		}
 

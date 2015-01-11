@@ -2,11 +2,18 @@
 <html>
 <head>
     <title>Kumis - Kafka 0.8 Monitoring Tool</title>
+     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="js/util.js"></script>
     <script src="bower_components/webcomponentsjs/webcomponents.min.js" debug></script>
-    
-    <link rel="import" href="/wc/kumis-topics.html">
+    <link rel="import" href="bower_components/polymer/polymer.html">
+    <link rel="import" href="bower_components/core-ajax/core-ajax.html">
+
+    <link rel="import" href="/kumis/globals.html">
+    <link rel="import" href="/kumis/topics.html">
 </head>
 <body unresolved>
-    <kumis-topics zkClusterAddress="zookeeper-04.stag.visualdna.com"></kumis-topics>
+    <app-globals id="globals" zkaddress="zookeeper-04.stag.visualdna.com"></app-globals>
+    <kumis-topics></kumis-topics>
 </body>
 </html>

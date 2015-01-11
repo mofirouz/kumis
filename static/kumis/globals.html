@@ -1,0 +1,24 @@
+<polymer-element name="app-globals" attributes="values">
+<script>
+  (function() {
+    var values = {};
+    var zkAddress = "";
+
+    Polymer({
+      preventDispose: true,
+      ready: function() {
+        this.values = values;
+        for (var i = 0; i < this.attributes.length; ++i) {
+         var attr = this.attributes[i];
+         values[attr.nodeName] = attr.value;
+        }
+        this.zkAddress = values["zkaddress"];
+      },
+      kumisEndpoint: function(endpoint) {
+        var hostname = window.location.host.substring(0, window.location.host.lastIndexOf(":"));
+        return window.location.protocol + "//" + hostname + ":7777"  + "/" + this.zkAddress + str;
+      }
+    });
+  })();
+</script>
+</polymer-element>

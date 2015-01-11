@@ -1,23 +1,27 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
-
 <!--
 An element to fetch topic data from Kumis.
 ##### Example
-    <kumis-topics zk="$ZK_CLUSTER"></kumis-topics>
+    <kumis-topics zkClusterAddress="$ZK_CLUSTER"></kumis-topics>
 @element kumis-topics
 @blurb An element to fetch topic data from Kumis.
 @status alpha
 @url https://github.com/mofirouz/kumis/
 -->
 
-<script src="kumis-topics.js"></script>
-<polymer-element name="kumis-topics" constructor="KumisTopics">
+<polymer-element name="kumis-topics">
+  <script>
+    Polymer('kumis-topics', {
+      computed: {
+        topicsEndpoint: '$.globals.kumisEndpoint("/t")'
+      }
+    });
+  </script>
   <template>
+    <app-globals id="globals"></app-globals>
     <core-ajax
         auto
         method="GET"
-        url="{{zk}}/t"
+        url="{{topicsEndpoint}}"
         contentType="application/json"
         handleAs="json"
         response="{{response}}"></core-ajax>
@@ -25,10 +29,11 @@ An element to fetch topic data from Kumis.
     <section>
       <template repeat="{{response}}">
         <article>
-          <p>{{}}</p>
+
+          <button onclick='getKumisBrokerAddress("{{$.globals.zkaddress}}/t/{{}}")'>{{}}</button>
         </article>
       </template>
     </section>
   </template>
+  
 </polymer-element>
-

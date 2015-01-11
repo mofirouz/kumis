@@ -9,7 +9,7 @@ deps:
 	go get github.com/Shopify/sarama
 	go get github.com/go-martini/martini
 	go get github.com/martini-contrib/cors
-	go get github.com/samuel/go-zookeeper/zk
+	go get github.com/mofirouz/go-zookeeper/zk
 
 compile:
 	go build -v -o out/kumis src/*.go
