@@ -142,8 +142,6 @@ func connect(zkAddress string) (zookeeper *zk.Conn, client *sarama.Client, err e
 		return
 	}
 
-	fmt.Println("zk connected...kafka..")
-
 	client, err = connectToKafka(getKafkaBrokers(zookeeper))
 	if err != nil {
 		fmt.Println(err.Error())

@@ -111,14 +111,19 @@ func getConsumerData(zookeeper *zk.Conn, client *sarama.Client, consumerId strin
 		partitions, _, _ := zookeeper.Children(CONSUMERS + "/" + consumerId + OFFSETS + "/" + topic)
 		for _, partition := range partitions {
 			b, _, _ := zookeeper.Get(CONSUMERS + "/" + consumerId + OFFSETS + "/" + topic + "/" + partition)
+
 			offset, _ := strconv.ParseInt(string(b[:]), 10, 0)
 			zkData.ConsumerOffset[partition] = offset
-
 			partitionInt, _ := strconv.ParseInt(partition, 10, 0)
+
 			latestOffset, _ := client.GetOffset(topic, int32(partitionInt), sarama.LatestOffsets)
 			zkData.LatestOffsets[partition] = latestOffset
 
-			zkData.PercentageConsumed[partition] = (float64(offset) / float64(latestOffset)) * 100
+			if latestOffset != 0 {
+				zkData.PercentageConsumed[partition] = (float64(offset) / float64(latestOffset)) * 100
+			} else {
+				zkData.PercentageConsumed[partition] = 0
+			}
 		}
 		consumerData.Offsets = append(consumerData.Offsets, zkData)
 	}
