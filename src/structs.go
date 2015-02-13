@@ -39,6 +39,7 @@ type ZKConsumerData struct {
 	TopicName          string
 	PercentageConsumed map[string]float64 // forbidden to use Integers as Keys in Json :facepalm:
 	ConsumerOffset     map[string]int64
+	EarliestOffsets    map[string]int64
 	LatestOffsets      map[string]int64
 }
 

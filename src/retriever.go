@@ -105,6 +105,7 @@ func getConsumerData(zookeeper *zk.Conn, client *sarama.Client, consumerId strin
 		zkData := new(ZKConsumerData)
 		zkData.TopicName = topic
 		zkData.ConsumerOffset = make(map[string]int64)
+		zkData.EarliestOffsets = make(map[string]int64)
 		zkData.LatestOffsets = make(map[string]int64)
 		zkData.PercentageConsumed = make(map[string]float64)
 
@@ -115,6 +116,9 @@ func getConsumerData(zookeeper *zk.Conn, client *sarama.Client, consumerId strin
 			offset, _ := strconv.ParseInt(string(b[:]), 10, 0)
 			zkData.ConsumerOffset[partition] = offset
 			partitionInt, _ := strconv.ParseInt(partition, 10, 0)
+
+			earliestOffset, _ := client.GetOffset(topic, int32(partitionInt), sarama.EarliestOffset)
+			zkData.EarliestOffsets[partition] = earliestOffset
 
 			latestOffset, _ := client.GetOffset(topic, int32(partitionInt), sarama.LatestOffsets)
 			zkData.LatestOffsets[partition] = latestOffset
