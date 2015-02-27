@@ -123,8 +123,14 @@ func getConsumerData(zookeeper *zk.Conn, client *sarama.Client, consumerId strin
 			latestOffset, _ := client.GetOffset(topic, int32(partitionInt), sarama.LatestOffsets)
 			zkData.LatestOffsets[partition] = latestOffset
 
-			if latestOffset != 0 {
-				zkData.PercentageConsumed[partition] = (float64(offset) / float64(latestOffset)) * 100
+			currentOffset := offset - earliestOffset
+			totalOffset := latestOffset - earliestOffset
+
+			if latestOffset == earliestOffset && latestOffset == offset {
+				zkData.PercentageConsumed[partition] = 100				
+			} else if latestOffset != 0 && totalOffset != 0 {
+				
+				zkData.PercentageConsumed[partition] = (float64(currentOffset) / float64(totalOffset)) * 100
 			} else {
 				zkData.PercentageConsumed[partition] = 0
 			}
