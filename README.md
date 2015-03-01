@@ -1,6 +1,8 @@
 Kumis : Kafka 0.8 Monitoring Tool
 =================================
 
+[![Join the chat at https://gitter.im/mofirouz/kumis](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mofirouz/kumis?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A Go application written to show and monitor Kafka 0.8 usage using the new Metadata API in Kafka.
 
 Kumis has a JSON RESTful Server which communicates with Kafka and Zookeeper, and another web server returning a Single Page Application - aka serving a single HTML file.
